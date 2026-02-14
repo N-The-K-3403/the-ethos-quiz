@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DS Ethos Quiz — Resultados</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <span class="site-brand">DS Ethos Quiz</span>
+      <a href="index.html" class="btn-ghost">Refazer quiz</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- ----------------------------------------------------------------
+           HERO
+           Nome do aluno + persona #1 em destaque.
+           Preenchido pelo results.js → renderHero()
+      ------------------------------------------------------------------ -->
+      <section class="results-hero">
+        <p class="results-hero-label">Resultados de</p>
+        <h1 class="results-hero-name" id="hero-name"></h1>
+        <p class="results-hero-persona">
+          Sua persona principal: <strong id="hero-persona"></strong>
+        </p>
+      </section>
+
+      <!-- ----------------------------------------------------------------
+           GRID PRINCIPAL
+           Duas colunas em desktop, uma em mobile.
+           Esquerda: personas | Direita: domínios
+      ------------------------------------------------------------------ -->
+      <div class="results-grid">
+
+        <section class="results-section">
+          <h2 class="section-title">Suas personas</h2>
+          <div id="personas-container">
+            <!-- Preenchido pelo results.js → renderPersonas() -->
+          </div>
+        </section>
+
+        <section class="results-section">
+          <h2 class="section-title">Afinidade com áreas</h2>
+          <div id="domains-container" class="domains-list">
+            <!-- Preenchido pelo results.js → renderDomains() -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ----------------------------------------------------------------
+           EIXOS
+           Visualização dos 7 eixos com marcador deslizante.
+           Preenchido pelo results.js → renderAxes()
+      ------------------------------------------------------------------ -->
+      <section class="results-section axes-section">
+        <h2 class="section-title">Como sua mente funciona</h2>
+        <p class="axes-subtitle">Cada eixo mostra onde você se posiciona entre dois extremos.</p>
+        <div id="axes-container" class="axes-list">
+          <!-- Preenchido pelo results.js → renderAxes() -->
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------------------
+           CARD EXPORTÁVEL
+           Fica invisível na página normal mas é capturado pelo html2canvas.
+           O CSS posiciona ele fora da viewport mas ainda renderizado.
+           results.js → renderShareCard() injeta o conteúdo aqui.
+      ------------------------------------------------------------------ -->
+      <section class="download-section">
+        <h2 class="section-title">Seu card</h2>
+        <p>Baixe e compartilhe seus resultados.</p>
+        <button id="download-btn" class="btn-primary">
+          Baixar card →
+        </button>
+        <button id="share-btn" class="btn-primary">
+          Compartilhar card →
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Card portrait — fora do fluxo normal, capturado pelo html2canvas -->
+  <!-- Fica fora do <main> pra não interferir no layout da página -->
+  <div class="card-wrapper">
+    <div id="share-card" class="share-card">
+      <!-- Preenchido pelo results.js → renderShareCard() -->
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>DS Ethos Quiz · 2026 · Projeto educacional de código aberto</p>
+    </div>
+  </footer>
+
+  <!-- html2canvas via CDN — necessário pro export do card -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Scripts — dados não precisam do math.js aqui, já vem calculado do localStorage -->
+  <script src="logic/quiz_data.js"></script>
+  <script src="logic/results.js"></script>
+
+</body>
+</html>

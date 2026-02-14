@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DS Ethos Quiz — Questões</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <span class="site-brand">DS Ethos Quiz</span>
+      <span class="header-name" id="user-name-display"></span>
+    </div>
+  </header>
+
+  <!-- Barra de progresso fixa no topo -->
+  <div class="progress-bar-wrapper">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <span class="progress-label" id="progress-label">0 / 21</span>
+  </div>
+
+  <main>
+    <div class="container">
+
+      <!-- ----------------------------------------------------------------
+           CALLOUT: Escala de Concordância (Likert)
+           As 8 primeiras questões são de escala.
+           data-section no container é o que o CSS usa pra colorir.
+      ------------------------------------------------------------------ -->
+      <div class="section-callout" data-type="likert">
+        <span class="callout-icon">📊</span>
+        <div>
+          <strong>Parte 1 — Escala de concordância</strong>
+          <p>Para cada afirmação, escolha o quanto você concorda.</p>
+        </div>
+      </div>
+
+      <!-- Q1–Q8 vão aqui (renderizadas pelo quiz.js) -->
+      <div id="questions-likert" class="questions-block" data-type="likert"></div>
+
+      <!-- ----------------------------------------------------------------
+           CALLOUT: Cenários
+      ------------------------------------------------------------------ -->
+      <div class="section-callout" data-type="scenario">
+        <span class="callout-icon">🎭</span>
+        <div>
+          <strong>Parte 2 — Cenários</strong>
+          <p>Escolha a opção que mais se parece com você em cada situação.</p>
+        </div>
+      </div>
+
+      <!-- Q9–Q17 vão aqui -->
+      <div id="questions-scenario" class="questions-block" data-type="scenario"></div>
+
+      <!-- ----------------------------------------------------------------
+           CALLOUT: Escolhas binárias
+      ------------------------------------------------------------------ -->
+      <div class="section-callout" data-type="binary">
+        <span class="callout-icon">⚔️</span>
+        <div>
+          <strong>Parte 3 — Escolhas diretas</strong>
+          <p>Duas opções. Escolha a que mais combina com você.</p>
+        </div>
+      </div>
+
+      <!-- Q18–Q21 vão aqui -->
+      <div id="questions-binary" class="questions-block" data-type="binary"></div>
+
+      <!-- ----------------------------------------------------------------
+           BOTÃO DE ENVIAR
+           Desabilitado até todas as 21 questões serem respondidas.
+           quiz.js habilita quando Object.keys(answers).length === 21
+      ------------------------------------------------------------------ -->
+      <div class="submit-section">
+        <p class="submit-hint" id="submit-hint">
+          Responda todas as questões para continuar.
+        </p>
+        <button id="submit-btn" class="btn-primary" disabled>
+          Ver resultados →
+        </button>
+      </div>
+
+      <!-- ----------------------------------------------------------------
+           SEÇÃO DEMOGRÁFICA
+           Fica hidden até o botão de enviar ser clicado.
+           quiz.js injeta o formulário dentro de #demographics-form.
+      ------------------------------------------------------------------ -->
+      <section id="demographics-section" class="demographics-section hidden">
+        <div class="demographics-header">
+          <h2>Quase lá!</h2>
+          <p>Algumas informações antes de ver seus resultados. Tudo opcional — mas ajuda a tornar o projeto mais interessante.</p>
+        </div>
+        <div id="demographics-form" class="demographics-form">
+          <!-- Preenchido pelo quiz.js → renderDemographicsForm() -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>DS Ethos Quiz · 2026</p>
+    </div>
+  </footer>
+
+  <!-- Scripts — ordem importa: dados → math → lógica -->
+  <script src="logic/quiz_data.js"></script>
+  <script src="logic/math.js"></script>
+  <script src="logic/quiz.js"></script>
+
+</body>
+</html>

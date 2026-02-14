@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DS Ethos Quiz</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <span class="site-brand">DS Ethos Quiz</span>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container hero-content">
+        <h1 class="hero-title">Descubra sua área<br>na computação.</h1>
+        <p class="hero-subtitle">
+          21 perguntas sobre como você pensa e trabalha.<br>
+          Pode fazer sem ter tido experiências prévias com programação.
+        </p>
+
+        <div class="start-box">
+          <input
+            type="text"
+            id="nameInput"
+            placeholder="Seu nome"
+            maxlength="60"
+            autocomplete="off"
+          />
+          <button id="startBtn" class="btn-primary" disabled>
+            Começar →
+          </button>
+        </div>
+        <p class="start-hint">Digite seu nome para começar.</p>
+      </div>
+    </section>
+
+    <section class="about">
+      <div class="container">
+
+        <div class="about-grid">
+
+          <div class="about-card">
+            <span class="about-icon">🧠</span>
+            <h3>Psicométrico</h3>
+            <p>21 questões calibradas em 7 eixos de personalidade técnica. </p>
+          </div>
+
+          <div class="about-card">
+            <span class="about-icon">🎯</span>
+            <h3>10 áreas</h3>
+            <p>Front-end, Back-end, Mobile, DevOps, IA, Segurança e mais.</p>
+          </div>
+
+          <div class="about-card">
+            <span class="about-icon">🃏</span>
+            <h3>Card pra compartilhar</h3>
+            <p>No final você baixa um card com seus resultados <br>(manda no grupo da turma).</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>DS Ethos Quiz · 2026 · feito por um aluno da Etec de Carapicuiba</p>
+    </div>
+  </footer>
+
+  <script>
+    // Script mínimo só pra essa página —
+    // não precisa carregar quiz_data.js aqui.
+
+    const nameInput = document.getElementById('nameInput');
+    const startBtn  = document.getElementById('startBtn');
+
+    // Só habilita o botão quando tiver algo digitado
+    nameInput.addEventListener('input', () => {
+      const hasName = nameInput.value.trim().length > 0;
+      startBtn.disabled = !hasName;
+    });
+
+    // Salva o nome e vai pro quiz
+    startBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (!name) return;
+      localStorage.setItem('userName', name);
+      window.location.href = 'quiz.html';
+    });
+
+    // Enter também funciona
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
+    });
+  </script>
+
+</body>
+</html>
