@@ -257,7 +257,7 @@ async function handleShare() {
       
       const shareData = {
         title: 'Meu Perfil DS Ethos',
-        text: 'Confira meu arquétipo de cientista de dados!',
+        text: 'Confira meu resultado no DS Ethos Quiz! https://the-ethos-quiz.vercel.app',
         files: [file], // Aqui enviamos o arquivo real
       };
 
@@ -269,7 +269,7 @@ async function handleShare() {
         await navigator.share({
           title: shareData.title,
           text: shareData.text,
-          url: window.location.href
+          url: window.location.href 
         });
       }
     }, 'image/png');
