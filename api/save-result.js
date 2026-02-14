@@ -8,7 +8,7 @@
 //   GITHUB_DATA_REPO  — "usuario/nome-do-repo", ex: "ana/ds-ethos-quiz-data"
 // =============================================================================
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
 
   // ── Só aceita POST ──────────────────────────────────────────────────────────
   if (req.method !== 'POST') {
