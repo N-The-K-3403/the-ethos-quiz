@@ -138,8 +138,8 @@ function renderAxes() {
       <div class="axis-row">
         <div class="axis-labels">
           <span class="axis-pole ${leftDominant ? 'dominant' : ''}">${def.left}</span>
-          <span class="axis-value" style="margin-right: 100px;" id="left">${Math.round(leftVal)}%</span>
-          <span class="axis-value" style="margin-left: 100px;" id="right">${Math.round(100 - leftVal)}%</span>
+          <span class="axis-value"  id="left">${Math.round(leftVal)}%</span>
+          <span class="axis-value"  id="right">${Math.round(100 - leftVal)}%</span>
           <span class="axis-pole ${rightDominant ? 'dominant' : ''}">${def.right}</span>
         </div>
         <div class="axis-track ${directionClass}" style="--dynamic-green: ${axisColor}">
