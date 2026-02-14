@@ -293,26 +293,7 @@ async function handleShare() {
 // O objeto quizResult já tem tudo:
 //   name, timestamp, duration, demographics, answers, results
 // -----------------------------------------------------------------------------
-async function sendToServer(data) {
-  // TODO: substituir pela URL do seu endpoint Vercel
-  const ENDPOINT = '/api/save-result';;
 
-  try {
-    const response = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    console.log('✅ Resultado enviado ao servidor.');
-
-  } catch (err) {
-    // Falha silenciosa — o aluno ainda vê os resultados normalmente
-    // O dado está no localStorage se precisar recuperar depois
-    console.warn('⚠️ Não foi possível enviar ao servidor:', err.message);
-  }
-}
 
 
 // -----------------------------------------------------------------------------
@@ -329,7 +310,7 @@ function init() {
   if (downloadBtn) downloadBtn.addEventListener('click', handleDownload);
   if (shareBtn) shareBtn.addEventListener('click', handleShare);
 
-  sendToServer(quizResult);
+  
 }
 
 document.addEventListener('DOMContentLoaded', init);

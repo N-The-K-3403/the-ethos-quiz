@@ -326,6 +326,27 @@ const domainCheckboxes = DEMOGRAPHICS_CONFIG.knownDomains.map(domain => `
 }
 
 
+async function sendToServer(data) {
+  // TODO: substituir pela URL do seu endpoint Vercel
+  const ENDPOINT = '/api/save-result';;
+
+  try {
+    const response = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    console.log('✅ Resultado enviado ao servidor.');
+
+  } catch (err) {
+    // Falha silenciosa — o aluno ainda vê os resultados normalmente
+    // O dado está no localStorage se precisar recuperar depois
+    console.warn('⚠️ Não foi possível enviar ao servidor:', err.message);
+  }
+}
+
 // -----------------------------------------------------------------------------
 // SUBMETER QUIZ
 // Coleta os dados demográficos, monta o objeto final, salva no localStorage
@@ -393,6 +414,9 @@ function submitQuiz() {
 
   // -- Salva no localStorage e redireciona --
   localStorage.setItem('quizResult', JSON.stringify(result));
+
+  sendToServer(quizResult);
+
   window.location.href = 'results.html';
 }
 
