@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DS Ethos Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-base: #0a0a0a;
+      --bg-surface: #111111;
+      --bg-raised: #1a1a1a;
+      --bg-border: #222222;
+      --green-bright: #00c896;
+      --green-mid: #00a37a;
+      --green-dim: #00c89620;
+      --text-primary: #f0f0f0;
+      --text-secondary: #aaaaaa;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      background-image:
+        linear-gradient(var(--bg-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-border) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── LOGIN SCREEN ─────────────────────────────────────────────────────── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--bg-border);
+      border-radius: 12px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-brand {
+      font-family: var(--font-mono);
+      font-size: 0.8em;
+      color: var(--green-bright);
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .login-title {
+      font-size: 1.6em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .login-sub {
+      color: var(--text-secondary);
+      font-size: 0.85em;
+      margin-bottom: 32px;
+    }
+
+    .login-box input {
+      width: 100%;
+      background: var(--bg-raised);
+      border: 1px solid var(--bg-border);
+      color: var(--text-primary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: var(--font-mono);
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      text-align: center;
+      transition: border-color 0.15s;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      border-color: var(--green-bright);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--green-bright);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .login-btn:hover { background: var(--green-mid); }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-error {
+      color: #ff6b6b;
+      font-size: 0.8em;
+      font-family: var(--font-mono);
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    /* ── DASHBOARD ────────────────────────────────────────────────────────── */
+    #dashboard-screen {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--bg-border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-brand {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      color: var(--green-bright);
+    }
+
+    .badge {
+      background: var(--green-dim);
+      color: var(--green-bright);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-family: var(--font-mono);
+    }
+
+    .btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--bg-border);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: 0.2s;
+      font-family: var(--font-sans);
+    }
+    .btn:hover { border-color: var(--green-mid); color: var(--green-bright); }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      flex: 1;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+    aside {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--bg-border);
+      padding: 24px 20px;
+      overflow-y: auto;
+      position: sticky;
+      top: 57px;
+      height: calc(100vh - 57px);
+    }
+
+    .filter-group { margin-bottom: 24px; }
+
+    .filter-label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.72em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-mono);
+    }
+
+    aside select,
+    aside input[type="text"] {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--bg-border);
+      color: var(--text-primary);
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.9em;
+      transition: border-color 0.15s;
+    }
+
+    aside select:focus,
+    aside input:focus { border-color: var(--green-mid); outline: none; }
+
+    /* ── MAIN ─────────────────────────────────────────────────────────────── */
+    main {
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .grid-kpi {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--bg-border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .kpi-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--green-bright);
+      font-family: var(--font-mono);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .kpi-label {
+      color: var(--text-secondary);
+      font-size: 0.8em;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--font-mono);
+    }
+
+    .grid-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      font-size: 0.72em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-mono);
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      height: 280px;
+      position: relative;
+    }
+
+    /* ── TABLE ────────────────────────────────────────────────────────────── */
+    .table-container { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875em;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--bg-border);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.8em;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 400;
+    }
+
+    td { padding: 12px; border-bottom: 1px solid var(--bg-border); }
+    tr:hover td { background: var(--bg-raised); cursor: pointer; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      background: var(--bg-raised);
+      border: 1px solid var(--bg-border);
+      margin: 2px;
+      font-family: var(--font-mono);
+    }
+
+    /* ── MODAL ────────────────────────────────────────────────────────────── */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: var(--bg-surface);
+      width: 90%;
+      max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--green-mid);
+      border-radius: 12px;
+      padding: 32px;
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 1.4em;
+      cursor: pointer;
+      color: var(--text-secondary);
+      line-height: 1;
+    }
+
+    .close-modal:hover { color: var(--text-primary); }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    /* ── LOADING ──────────────────────────────────────────────────────────── */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      gap: 16px;
+      font-family: var(--font-mono);
+      color: var(--green-bright);
+      font-size: 0.9em;
+    }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid var(--bg-border);
+      border-top-color: var(--green-bright);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .grid-charts { grid-template-columns: 1fr; }
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ──────────────────────────────────────────────────────────────── -->
+  <div id="login-screen">
+    <div class="login-box">
+      <p class="login-brand">🐍 DS Ethos Quiz</p>
+      <h1 class="login-title">Analytics Dashboard</h1>
+      <p class="login-sub">Acesso restrito. Digite a senha para continuar.</p>
+      <input
+        type="password"
+        id="passwordInput"
+        placeholder="••••••••••••"
+        autocomplete="current-password"
+      />
+      <button class="login-btn" id="loginBtn">Entrar →</button>
+      <p class="login-error" id="login-error"></p>
+    </div>
+  </div>
+
+  <!-- ── LOADING ────────────────────────────────────────────────────────────── -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+    <span id="loading-msg">Carregando resultados...</span>
+  </div>
+
+  <!-- ── DASHBOARD ──────────────────────────────────────────────────────────── -->
+  <div id="dashboard-screen" class="hidden">
+
+    <header>
+      <div class="header-left">
+        <span class="header-brand">🐍 DS Ethos Analytics</span>
+        <span class="badge" id="count-badge">0 registros</span>
+      </div>
+      <button class="btn" id="refreshBtn">↻ Atualizar</button>
+    </header>
+
+    <div class="dashboard-layout">
+
+      <aside>
+        <div class="filter-group">
+          <label class="filter-label">Buscar por nome</label>
+          <input type="text" id="filterName" placeholder="Elias...">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Ano escolar</label>
+          <select id="filterYear">
+            <option value="all">Todos</option>
+            <option value="1">1º ano</option>
+            <option value="2">2º ano</option>
+            <option value="3">3º ano</option>
+            <option value="4">4º ano</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Experiência</label>
+          <select id="filterExp">
+            <option value="all">Todos</option>
+            <option value="yes">Com experiência</option>
+            <option value="no">Sem experiência</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Persona principal</label>
+          <select id="filterPersona">
+            <option value="all">Todos os tipos</option>
+          </select>
+        </div>
+
+        <button class="btn" style="width:100%; margin-top: 8px;" onclick="applyFilters()">
+          Aplicar filtros
+        </button>
+
+        <button class="btn" style="width:100%; margin-top: 8px;" onclick="clearFilters()">
+          Limpar filtros
+        </button>
+      </aside>
+
+      <main>
+
+        <!-- KPIs -->
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-value" id="kpi-total">0</div>
+            <div class="kpi-label">Alunos</div>
+          </div>
+          <div class="card">
+            <div class="kpi-value" id="kpi-exp">0%</div>
+            <div class="kpi-label">Com experiência</div>
+          </div>
+          <div class="card">
+            <div class="kpi-value" id="kpi-dom">—</div>
+            <div class="kpi-label">Área mais popular</div>
+          </div>
+          <div class="card">
+            <div class="kpi-value" id="kpi-persona">—</div>
+            <div class="kpi-label">Persona dominante</div>
+          </div>
+        </div>
+
+        <!-- Charts row 1 -->
+        <div class="grid-charts">
+          <div class="card">
+            <h3>Distribuição de personas</h3>
+            <div class="chart-container">
+              <canvas id="personaChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Experiência vs. foco em sistemas</h3>
+            <div class="chart-container">
+              <canvas id="matrixChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts row 2 -->
+        <div class="grid-charts">
+          <div class="card">
+            <h3>Afinidade média por área</h3>
+            <div class="chart-container">
+              <canvas id="domainChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Experiência prévia</h3>
+            <div class="chart-container">
+              <canvas id="expChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card" style="margin-top: 16px;">
+          <h3 style="margin-bottom: 16px;">Registros individuais</h3>
+          <div class="table-container">
+            <table id="dataTable">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Idade</th>
+                  <th>Ano</th>
+                  <th>Persona principal</th>
+                  <th>Área principal</th>
+                  <th>Exp.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ── MODAL ──────────────────────────────────────────────────────────────── -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 id="modal-name"></h2>
+      <p id="modal-sub" style="color:var(--text-secondary); margin-top: 4px; font-size: 0.9em;"></p>
+      <div class="modal-grid">
+        <div>
+          <p class="filter-label">Dados gerais</p>
+          <ul style="list-style:none; line-height:2; margin-top: 10px; font-size: 0.9em;" id="modal-stats"></ul>
+          <p class="filter-label" style="margin-top: 20px;">Linguagens conhecidas</p>
+          <div id="modal-langs" style="margin-top: 8px;"></div>
+          <p class="filter-label" style="margin-top: 20px;">Áreas que já conhecia</p>
+          <div id="modal-domains-known" style="margin-top: 8px;"></div>
+        </div>
+        <div>
+          <p class="filter-label">Perfil de eixos</p>
+          <div class="chart-container" style="height: 280px; margin-top: 10px;">
+            <canvas id="modalRadar"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// =============================================================================
+// ESTADO GLOBAL
+// =============================================================================
+let rawData     = [];
+let filteredData = [];
+let charts      = {};
+let sessionPassword = null;   // guardado em memória pra poder re-fetch
+
+Chart.defaults.color        = '#888888';
+Chart.defaults.borderColor  = '#222222';
+
+const COLOR_PRIMARY   = '#00c896';
+const COLOR_SECONDARY = '#007a5c';
+const COLOR_DIM       = '#00c89640';
+
+
+// =============================================================================
+// LOGIN
+// =============================================================================
+const loginBtn       = document.getElementById('loginBtn');
+const passwordInput  = document.getElementById('passwordInput');
+const loginError     = document.getElementById('login-error');
+
+loginBtn.addEventListener('click', attemptLogin);
+passwordInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+async function attemptLogin() {
+  const password = passwordInput.value.trim();
+  if (!password) return;
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Verificando...';
+  loginError.textContent = '';
+
+  const ok = await fetchData(password);
+
+  if (ok) {
+    sessionPassword = password;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard-screen').classList.remove('hidden');
+  } else {
+    loginError.textContent = 'Senha incorreta ou erro de conexão.';
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Entrar →';
+  }
+}
+
+
+// =============================================================================
+// FETCH DATA
+// Chama /api/fetch-results, retorna true se ok, false se falhou.
+// =============================================================================
+async function fetchData(password) {
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const loadingMsg     = document.getElementById('loading-msg');
+
+  loadingOverlay.classList.remove('hidden');
+  loadingMsg.textContent = 'Carregando resultados...';
+
+  try {
+    const res = await fetch('/api/fetch-results', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ password }),
+    });
+
+    if (!res.ok) {
+      loadingOverlay.classList.add('hidden');
+      return false;
+    }
+
+    const data = await res.json();
+    rawData = data.results || [];
+
+    populatePersonaFilter();
+    filteredData = [...rawData];
+    updateDashboard();
+
+    loadingOverlay.classList.add('hidden');
+    return true;
+
+  } catch (err) {
+    console.error('Fetch error:', err);
+    loadingOverlay.classList.add('hidden');
+    return false;
+  }
+}
+
+// Botão de refresh — re-fetcha com a senha guardada na memória
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  if (sessionPassword) fetchData(sessionPassword);
+});
+
+
+// =============================================================================
+// FILTROS
+// =============================================================================
+function populatePersonaFilter() {
+  const select   = document.getElementById('filterPersona');
+  const personas = new Set();
+
+  rawData.forEach(d => {
+    if (d.results?.personas?.[0]) personas.add(d.results.personas[0].name);
+  });
+
+  select.innerHTML = '<option value="all">Todos os tipos</option>';
+  personas.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p.split('(')[0].trim();
+    select.appendChild(opt);
+  });
+}
+
+function applyFilters() {
+  const nameQ  = document.getElementById('filterName').value.toLowerCase();
+  const yearQ  = document.getElementById('filterYear').value;
+  const expQ   = document.getElementById('filterExp').value;
+  const persQ  = document.getElementById('filterPersona').value;
+
+  filteredData = rawData.filter(item => {
+    const demo = item.demographics || {};
+    const topP = item.results?.personas?.[0]?.name || '';
+
+    if (nameQ && !item.name?.toLowerCase().includes(nameQ)) return false;
+    if (yearQ !== 'all' && String(demo.schoolYear) !== yearQ) return false;
+    if (expQ === 'yes' && !demo.priorExperience) return false;
+    if (expQ === 'no'  &&  demo.priorExperience) return false;
+    if (persQ !== 'all' && topP !== persQ) return false;
+
+    return true;
+  });
+
+  updateDashboard();
+}
+
+function clearFilters() {
+  document.getElementById('filterName').value    = '';
+  document.getElementById('filterYear').value    = 'all';
+  document.getElementById('filterExp').value     = 'all';
+  document.getElementById('filterPersona').value = 'all';
+  filteredData = [...rawData];
+  updateDashboard();
+}
+
+document.getElementById('filterName').addEventListener('keyup', e => {
+  if (e.key === 'Enter') applyFilters();
+});
+
+
+// =============================================================================
+// DASHBOARD
+// =============================================================================
+function updateDashboard() {
+  document.getElementById('count-badge').textContent = `${filteredData.length} registros`;
+  renderKPIs();
+  renderCharts();
+  renderTable();
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+function renderKPIs() {
+  document.getElementById('kpi-total').textContent = filteredData.length;
+
+  const expCount = filteredData.filter(d => d.demographics?.priorExperience).length;
+  const expPerc  = filteredData.length
+    ? Math.round((expCount / filteredData.length) * 100)
+    : 0;
+  document.getElementById('kpi-exp').textContent = `${expPerc}%`;
+
+  // Top domain por contagem de #1
+  const domCounts = {};
+  filteredData.forEach(d => {
+    const top = d.results?.domains?.[0]?.name;
+    if (top) domCounts[top] = (domCounts[top] || 0) + 1;
+  });
+  const topDomain = Object.keys(domCounts).sort((a,b) => domCounts[b] - domCounts[a])[0] || '—';
+  document.getElementById('kpi-dom').textContent = shortName(topDomain);
+
+  // Top persona
+  const persCounts = {};
+  filteredData.forEach(d => {
+    const top = d.results?.personas?.[0]?.name;
+    if (top) persCounts[top] = (persCounts[top] || 0) + 1;
+  });
+  const topPersona = Object.keys(persCounts).sort((a,b) => persCounts[b] - persCounts[a])[0] || '—';
+  document.getElementById('kpi-persona').textContent = topPersona.split('(')[0].trim();
+}
+
+function shortName(name) {
+  return name
+    .replace('Desenvolvimento ', 'Dev. ')
+    .replace('Engenharia de ', 'Eng. ')
+    .replace('Infraestrutura em Nuvem', 'Cloud')
+    .replace('Aprendizado de Máquina', 'ML');
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+function renderCharts() {
+
+  // A. Persona distribution (bar)
+  const pCounts = {};
+  filteredData.forEach(d => {
+    const name = d.results?.personas?.[0]?.name?.split('(')[0]?.trim();
+    if (name) pCounts[name] = (pCounts[name] || 0) + 1;
+  });
+
+  createOrUpdateChart('personaChart', 'bar', {
+    labels: Object.keys(pCounts),
+    datasets: [{
+      label: 'Alunos',
+      data: Object.values(pCounts),
+      backgroundColor: COLOR_PRIMARY,
+      borderRadius: 4,
+    }]
+  }, { plugins: { legend: { display: false } } });
+
+  // B. Scatter: anos de experiência vs score "Sistema"
+  const scatterData = filteredData
+    .filter(d => d.demographics?.priorExperience)
+    .map(d => ({
+      x: d.demographics.experienceSince || 0,
+      y: d.results?.axes?.['Sistema'] || 50,
+      name: d.name,
+    }));
+
+  createOrUpdateChart('matrixChart', 'scatter', {
+    datasets: [{
+      label: 'Alunos com experiência',
+      data: scatterData,
+      backgroundColor: COLOR_PRIMARY,
+      pointRadius: 6,
+      pointHoverRadius: 8,
+    }]
+  }, {
+    scales: {
+      x: { title: { display: true, text: 'Anos de experiência' } },
+      y: {
+        title: { display: true, text: 'Foco em Sistemas (0-100)' },
+        min: 0, max: 100,
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.raw.name}: ${ctx.raw.y}% Sistema`,
+        }
+      }
+    }
+  });
+
+  // C. Domain avg scores (horizontal bar)
+  const dScores = {};
+  filteredData.forEach(d => {
+    d.results?.domains?.forEach(dom => {
+      if (!dScores[dom.name]) dScores[dom.name] = { total: 0, count: 0 };
+      dScores[dom.name].total += dom.score;
+      dScores[dom.name].count += 1;
+    });
+  });
+
+  const domLabels = Object.keys(dScores);
+  const domAvg    = domLabels.map(l => Math.round(dScores[l].total / dScores[l].count));
+
+  // Sort by avg descending
+  const domSorted = domLabels
+    .map((l, i) => ({ label: l, avg: domAvg[i] }))
+    .sort((a, b) => b.avg - a.avg);
+
+  createOrUpdateChart('domainChart', 'bar', {
+    labels: domSorted.map(d => shortName(d.label)),
+    datasets: [{
+      label: 'Média',
+      data: domSorted.map(d => d.avg),
+      backgroundColor: COLOR_SECONDARY,
+      borderRadius: 4,
+    }]
+  }, {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: { x: { min: 0, max: 100 } },
+  });
+
+  // D. Experience doughnut
+  const expYes = filteredData.filter(d => d.demographics?.priorExperience).length;
+  const expNo  = filteredData.length - expYes;
+
+  createOrUpdateChart('expChart', 'doughnut', {
+    labels: ['Com experiência', 'Sem experiência'],
+    datasets: [{
+      data: [expYes, expNo],
+      backgroundColor: [COLOR_PRIMARY, '#2a2a2a'],
+      borderWidth: 0,
+    }]
+  }, {
+    plugins: {
+      legend: { position: 'bottom' },
+    }
+  });
+}
+
+function createOrUpdateChart(id, type, data, extraOptions = {}) {
+  const ctx = document.getElementById(id)?.getContext('2d');
+  if (!ctx) return;
+
+  if (charts[id]) {
+    charts[id].destroy();
+    delete charts[id];
+  }
+
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      ...extraOptions,
+    }
+  });
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.querySelector('#dataTable tbody');
+  tbody.innerHTML = '';
+
+  filteredData.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.onclick = () => openModal(d);
+
+    const topPersona = d.results?.personas?.[0]?.name?.split('(')[0]?.trim() || '—';
+    const topDomain  = shortName(d.results?.domains?.[0]?.name || '—');
+    const exp        = d.demographics?.priorExperience
+      ? `<span style="color:${COLOR_PRIMARY}">Sim (${d.demographics.experienceSince || '?'}a)</span>`
+      : '<span style="color:#555">Não</span>';
+
+    tr.innerHTML = `
+      <td style="font-weight:600; color:#fff">${d.name || '—'}</td>
+      <td style="color:var(--text-secondary)">${d.demographics?.age || '—'}</td>
+      <td style="color:var(--text-secondary)">${d.demographics?.schoolYear || '—'}º</td>
+      <td>${topPersona}</td>
+      <td>${topDomain}</td>
+      <td>${exp}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+// =============================================================================
+// MODAL
+// =============================================================================
+const modal      = document.getElementById('detailModal');
+const closeModal = document.querySelector('.close-modal');
+
+closeModal.onclick = () => modal.classList.remove('active');
+window.onclick = e => { if (e.target === modal) modal.classList.remove('active'); };
+
+function openModal(data) {
+  modal.classList.add('active');
+
+  document.getElementById('modal-name').textContent = data.name || '—';
+  document.getElementById('modal-sub').textContent  =
+    `${data.results?.personas?.[0]?.name || ''} · ${data.results?.domains?.[0]?.name || ''}`;
+
+  // Stats
+  const demo = data.demographics || {};
+  document.getElementById('modal-stats').innerHTML = `
+    <li><strong>Idade:</strong> ${demo.age || '—'}</li>
+    <li><strong>Ano escolar:</strong> ${demo.schoolYear || '—'}º</li>
+    <li><strong>Gênero:</strong> ${demo.gender || '—'}</li>
+    <li><strong>Experiência:</strong> ${demo.priorExperience ? `Sim (${demo.experienceSince || '?'} anos)` : 'Não'}</li>
+    <li><strong>Quiz correspondeu:</strong> ${demo.quizMatchedExpectation || '—'}</li>
+    <li><strong>Duração:</strong> ${Math.round((data.duration || 0) / 60)} min</li>
+  `;
+
+  // Languages
+  const langsDiv = document.getElementById('modal-langs');
+  const langs    = data.demographics?.knownLanguages?.selected || [];
+  const freeTag  = data.demographics?.knownLanguages?.freeTag;
+  langsDiv.innerHTML = langs.length
+    ? [...langs, ...(freeTag ? [freeTag + ' *'] : [])]
+        .map(l => `<span class="tag">${l}</span>`).join('')
+    : '<span style="color:#555">Nenhuma</span>';
+
+  // Known domains
+  const domainsDiv   = document.getElementById('modal-domains-known');
+  const knownDomains = data.demographics?.knownDomains || [];
+  domainsDiv.innerHTML = knownDomains.length
+    ? knownDomains.map(d => `<span class="tag">${shortName(d)}</span>`).join('')
+    : '<span style="color:#555">Nenhuma</span>';
+
+  // Radar chart — one pole per axis
+  const axes        = data.results?.axes || {};
+  const radarLabels = ['Abstrato', 'Estrutural', 'Sistema', 'Preventivo', 'Exploratório', 'Visão Global', 'Experimental'];
+  const radarData   = radarLabels.map(k => axes[k] || 0);
+
+  createOrUpdateChart('modalRadar', 'radar', {
+    labels: radarLabels,
+    datasets: [{
+      label: 'Perfil',
+      data: radarData,
+      backgroundColor: COLOR_DIM,
+      borderColor: COLOR_PRIMARY,
+      pointBackgroundColor: '#fff',
+      pointRadius: 3,
+    }]
+  }, {
+    scales: {
+      r: {
+        angleLines: { color: '#2a2a2a' },
+        grid:       { color: '#2a2a2a' },
+        pointLabels: { color: '#888', font: { size: 10, family: 'DM Mono' } },
+        ticks:       { display: false },
+        suggestedMin: 0,
+        suggestedMax: 100,
+      }
+    },
+    plugins: { legend: { display: false } }
+  });
+}
+</script>
+</body>
+</html>
