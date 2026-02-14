@@ -352,7 +352,7 @@ async function sendToServer(data) {
 // Coleta os dados demográficos, monta o objeto final, salva no localStorage
 // e redireciona para results.html.
 // -----------------------------------------------------------------------------
-function submitQuiz() {
+async function submitQuiz() {
 
   // -- Coleta os dados demográficos --
 
@@ -415,7 +415,7 @@ function submitQuiz() {
   // -- Salva no localStorage e redireciona --
   localStorage.setItem('quizResult', JSON.stringify(result));
 
-  sendToServer(quizResult);
+  await sendToServer(result);
 
   window.location.href = 'results.html';
 }
