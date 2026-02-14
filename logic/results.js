@@ -295,7 +295,7 @@ async function handleShare() {
 // -----------------------------------------------------------------------------
 async function sendToServer(data) {
   // TODO: substituir pela URL do seu endpoint Vercel
-  const ENDPOINT = 'https://seu-projeto.vercel.app/api/save-result';
+  const ENDPOINT = '/api/save-result';;
 
   try {
     const response = await fetch(ENDPOINT, {
