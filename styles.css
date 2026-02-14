@@ -1040,7 +1040,10 @@ input[type="radio"] {
   margin-bottom: var(--space-lg);
 }
 
-
+#share-btn
+{
+margin-top:30px;  
+}
 /* =============================================================================
    SHARE CARD
    Portrait card capturado pelo html2canvas.
