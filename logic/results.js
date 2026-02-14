@@ -85,10 +85,10 @@ function renderPersonas() {
 // Top 3 recebem a classe .top-domain para destaque visual via CSS.
 // -----------------------------------------------------------------------------
 function renderDomains() {
-  if (!domainsContainer) return;
+if (!domainsContainer) return;
 
   domainsContainer.innerHTML = allDomains.map((d, i) => `
-    <div class="domain-row ${i < 3 ? 'top-domain' : ''}">
+    <div class="domain-row ${i < 3 ? 'top-domain' : ''}" data-domain-key="${d.key}">
       <div class="domain-label-row">
         <span class="domain-name">${d.name}</span>
         <span class="domain-score">${d.score}%</span>
@@ -98,6 +98,14 @@ function renderDomains() {
       </div>
     </div>
   `).join('');
+
+  // Adicionar click listeners em cada domain-row
+  domainsContainer.querySelectorAll('.domain-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const domainKey = row.dataset.domainKey;
+      openDomainModal(domainKey);
+    });
+  });
 }
 
 
@@ -285,14 +293,96 @@ async function handleShare() {
   }
 }
 
+// =============================================================================
+// MODAL DOMAIN DETAILS FUNCTIONS
+// Add these to your existing results.js file
+// =============================================================================
+
 // -----------------------------------------------------------------------------
-// ENVIAR PARA SERVIDOR (STUB)
-// Quando você montar o backend no Vercel, descomenta e aponta pra URL certa.
-// Por enquanto só loga no console.
-//
-// O objeto quizResult já tem tudo:
-//   name, timestamp, duration, demographics, answers, results
+// ABRIR MODAL DE DOMÍNIO
+// Chamado quando o usuário clica em um domain-row
 // -----------------------------------------------------------------------------
+function openDomainModal(domainKey) {
+  const detail = QUIZ_DATA.domainDetails[domainKey];
+  if (!detail) return;
+
+  const modal = document.getElementById('domain-modal');
+  const modalBody = document.getElementById('modal-body');
+
+  // Montar o HTML do modal
+  modalBody.innerHTML = `
+    <div class="modal-header">
+      <span class="modal-icon">${detail.icon}</span>
+      <h2 class="modal-title">${QUIZ_DATA.domains[domainKey].name}</h2>
+    </div>
+
+    <div class="modal-section">
+      <p class="modal-what">${detail.what}</p>
+    </div>
+
+    <div class="modal-section">
+      <span class="modal-section-label">O que você vai fazer</span>
+      <ul class="modal-tasks">
+        ${detail.tasks.map(task => `<li>${task}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="modal-section">
+      <span class="modal-section-label">Tecnologias comuns</span>
+      <div class="modal-tech-grid">
+        ${detail.tech.map(tech => `<span class="modal-tech-tag">${tech}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="modal-roadmaps">
+      ${detail.roadmaps.map(roadmap => `
+        <a href="${roadmap.url}" target="_blank" rel="noopener noreferrer" class="modal-roadmap-link">
+          ${roadmap.label}
+        </a>
+      `).join('')}
+    </div>
+
+    <p class="modal-hint">Quer começar a aprender? Veja os roadmaps acima! 🚀</p>
+  `;
+
+  // Mostrar modal
+  modal.classList.remove('hidden');
+
+  // Prevenir scroll do body quando modal está aberto
+  document.body.style.overflow = 'hidden';
+}
+
+// -----------------------------------------------------------------------------
+// FECHAR MODAL
+// -----------------------------------------------------------------------------
+function closeDomainModal() {
+  const modal = document.getElementById('domain-modal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function initModalListeners() {
+  const modal = document.getElementById('domain-modal');
+  const modalClose = document.querySelector('.modal-close');
+  const modalOverlay = document.querySelector('.modal-overlay');
+
+  // Fechar ao clicar no X
+  if (modalClose) {
+    modalClose.addEventListener('click', closeDomainModal);
+  }
+
+  // Fechar ao clicar fora do conteúdo
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', closeDomainModal);
+  }
+
+  // Fechar com ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeDomainModal();
+    }
+  });
+}
 
 
 
@@ -306,6 +396,7 @@ function init() {
   renderDomains();
   renderAxes();
   renderShareCard();
+  initModalListeners();  // ← ADICIONAR ESTA LINHA
 
   if (downloadBtn) downloadBtn.addEventListener('click', handleDownload);
   if (shareBtn) shareBtn.addEventListener('click', handleShare);

@@ -47,6 +47,7 @@
 
         <section class="results-section">
           <h2 class="section-title">Afinidade com áreas</h2>
+          <p class="section-hint">💡 Clique em qualquer área para saber mais</p>
           <div id="domains-container" class="domains-list">
             <!-- Preenchido pelo results.js → renderDomains() -->
           </div>
@@ -95,9 +96,24 @@
     </div>
   </div>
 
+  <!-- ----------------------------------------------------------------
+       MODAL DE DETALHES DO DOMÍNIO
+       Aparece quando o usuário clica em uma área.
+       results.js → openDomainModal() controla.
+  ------------------------------------------------------------------ -->
+  <div id="domain-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Fechar">✕</button>
+      <div id="modal-body">
+        <!-- Conteúdo injetado dinamicamente -->
+      </div>
+    </div>
+  </div>
+
   <footer>
     <div class="container">
-      <p>DS Ethos Quiz · 2026 · Projeto educacional de código aberto</p>
+      <p>DS Ethos Quiz · 2026 · é open source rapaziada</p>
     </div>
   </footer>
 

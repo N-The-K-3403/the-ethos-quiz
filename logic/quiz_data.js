@@ -191,6 +191,154 @@ const QUIZ_DATA = {
         'QA/Testes': { name: 'QA & Testes', description: 'Validação, automação, garantia de qualidade', formula: { 'Detalhista': 0.30, 'Preventivo': 0.25, 'Controlado': 0.20, 'Estrutural': 0.10, 'Sistema': 0.10, 'Concreto': 0.05 } }
     },
 
+    // =============================================================================
+    // DETALHES DOS DOMÍNIOS (para o modal)
+    // =============================================================================
+    domainDetails: {
+        'Frontend': {
+            icon: '🎨',
+            what: 'Criar interfaces visuais que as pessoas usam — sites, apps, dashboards.',
+            tasks: [
+                'Implementar designs em código (HTML/CSS/JS)',
+                'Garantir que funcione em todos os dispositivos',
+                'Melhorar performance e acessibilidade',
+                'Trabalhar próximo a designers'
+            ],
+            tech: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'Figma'],
+            roadmaps: [
+                { label: 'Frontend Roadmap', url: 'https://roadmap.sh/frontend' }
+            ]
+        },
+        'Backend': {
+            icon: '⚙️',
+            what: 'Construir a lógica invisível que faz sistemas funcionarem — APIs, banco de dados, regras de negócio.',
+            tasks: [
+                'Criar APIs que o frontend consome',
+                'Gerenciar bancos de dados',
+                'Implementar autenticação e segurança',
+                'Otimizar performance do servidor'
+            ],
+            tech: ['Node.js', 'Python', 'PostgreSQL', 'Redis', 'Docker'],
+            roadmaps: [
+                { label: 'Backend Roadmap', url: 'https://roadmap.sh/backend' }
+            ]
+        },
+        'Mobile': {
+            icon: '📱',
+            what: 'Desenvolver apps nativos para iOS e Android que milhões de pessoas usam todos os dias.',
+            tasks: [
+                'Criar interfaces touch-friendly',
+                'Lidar com limitações de bateria/memória',
+                'Integrar com câmera, GPS, notificações',
+                'Publicar e atualizar apps nas lojas'
+            ],
+            tech: ['React Native', 'Swift', 'Kotlin', 'Flutter', 'Firebase'],
+            roadmaps: [
+                { label: 'Android Roadmap', url: 'https://roadmap.sh/android' },
+                { label: 'iOS Roadmap', url: 'https://roadmap.sh/ios' }
+            ]
+        },
+        'Embarcados': {
+            icon: '🔌',
+            what: 'Programar hardware — de microcontroladores a robôs, IoT e eletrônicos que interagem com o mundo físico.',
+            tasks: [
+                'Escrever código de baixo nível (C/C++)',
+                'Trabalhar com sensores e atuadores',
+                'Otimizar para memória e energia limitadas',
+                'Debugar com osciloscópio e multímetro'
+            ],
+            tech: ['C', 'C++', 'Arduino', 'Raspberry Pi', 'RTOS'],
+            roadmaps: [
+                { label: 'Roadmap Eletrônica (PT-BR)', url: 'https://github.com/fabiobrasileiroo/meu-roadmap-eletronica-embarcado-basico' }
+            ]
+        },
+        'Engenharia de Dados': {
+            icon: '🔄',
+            what: 'Construir pipelines que movem, transformam e organizam dados em larga escala — a infraestrutura invisível da análise.',
+            tasks: [
+                'Criar ETL/ELT pipelines',
+                'Garantir qualidade e consistência dos dados',
+                'Otimizar queries e armazenamento',
+                'Monitorar fluxos de dados 24/7'
+            ],
+            tech: ['SQL', 'Python', 'Airflow', 'Spark', 'Snowflake'],
+            roadmaps: [
+                { label: 'Data Engineer Roadmap', url: 'https://roadmap.sh/data-engineer' }
+            ]
+        },
+        'DevOps': {
+            icon: '🚀',
+            what: 'Automatizar deploy, monitorar sistemas em produção e garantir que tudo rode sem parar.',
+            tasks: [
+                'Configurar CI/CD pipelines',
+                'Gerenciar infraestrutura na nuvem',
+                'Monitorar logs e métricas',
+                'Responder a incidentes de produção'
+            ],
+            tech: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'Prometheus'],
+            roadmaps: [
+                { label: 'DevOps Roadmap', url: 'https://roadmap.sh/devops' }
+            ]
+        },
+        'Segurança': {
+            icon: '🔒',
+            what: 'Proteger sistemas contra ataques, encontrar vulnerabilidades antes dos hackers, pensar como adversário.',
+            tasks: [
+                'Fazer pentests e auditorias',
+                'Configurar firewalls e monitoramento',
+                'Responder a incidentes de segurança',
+                'Educar equipes sobre boas práticas'
+            ],
+            tech: ['Kali Linux', 'Burp Suite', 'Wireshark', 'OWASP', 'Python'],
+            roadmaps: [
+                { label: 'Cyber Security Roadmap', url: 'https://roadmap.sh/cyber-security' }
+            ]
+        },
+        'Ciência de Dados': {
+            icon: '📊',
+            what: 'Extrair insights de dados, criar visualizações, contar histórias com números — transformar dados em decisões.',
+            tasks: [
+                'Limpar e explorar datasets',
+                'Criar visualizações e dashboards',
+                'Aplicar estatística e testes de hipótese',
+                'Comunicar insights para stakeholders'
+            ],
+            tech: ['Python', 'R', 'SQL', 'Tableau', 'Jupyter'],
+            roadmaps: [
+                { label: 'AI & Data Scientist Roadmap', url: 'https://roadmap.sh/ai-data-scientist' }
+            ]
+        },
+        'IA/ML': {
+            icon: '🤖',
+            what: 'Treinar modelos que aprendem com dados — de recomendações a visão computacional e LLMs.',
+            tasks: [
+                'Preparar dados para treinamento',
+                'Treinar e ajustar modelos (fine-tuning)',
+                'Avaliar performance e evitar overfitting',
+                'Colocar modelos em produção (MLOps)'
+            ],
+            tech: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-learn', 'Hugging Face'],
+            roadmaps: [
+                { label: 'AI Engineer Roadmap', url: 'https://roadmap.sh/ai-engineer' },
+                { label: 'Machine Learning Roadmap', url: 'https://roadmap.sh/machine-learning' }
+            ]
+        },
+        'QA/Testes': {
+            icon: '✅',
+            what: 'Garantir qualidade — encontrar bugs antes dos usuários, automatizar testes, pensar em edge cases.',
+            tasks: [
+                'Escrever testes automatizados (unit, E2E)',
+                'Fazer testes manuais exploratórios',
+                'Reportar bugs de forma clara',
+                'Garantir cobertura de testes críticos'
+            ],
+            tech: ['Selenium', 'Cypress', 'Jest', 'Postman', 'JMeter'],
+            roadmaps: [
+                { label: 'QA Roadmap', url: 'https://roadmap.sh/qa' }
+            ]
+        }
+    },
+
     personas: {
         'Builder': { name: 'Builder (Construtor)', tagline: 'Eu faço coisas que as pessoas usam', description: 'Resultados visíveis e tangíveis.', formula: { 'Concreto': 0.30, 'Visual': 0.20, 'Humano': 0.20, 'Reativo': 0.15, 'Visão Global': 0.10, 'Experimental': 0.05 } },
         'Architect': { name: 'Architect (Arquiteto)', tagline: 'Eu projeto o sistema que sustenta tudo', description: 'Elegância, estrutura e escala.', formula: { 'Estrutural': 0.30, 'Abstrato': 0.25, 'Sistema': 0.20, 'Visão Global': 0.15, 'Preventivo': 0.10 } },
