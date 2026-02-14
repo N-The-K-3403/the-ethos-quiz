@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DS Ethos Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --bg-base: #0a0a0a;
@@ -348,6 +349,130 @@
 
     .close-modal:hover { color: var(--text-primary); }
 
+    /* ── TAB BUTTONS ──────────────────────────────────────────────────────── */
+    .tab-btn {
+      padding: 6px 14px;
+      background: var(--bg-raised);
+      border: 1px solid var(--bg-border);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      font-size: 0.8em;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-mono);
+    }
+
+    .tab-btn:hover {
+      border-color: var(--green-mid);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--green-dim);
+      border-color: var(--green-bright);
+      color: var(--green-bright);
+    }
+
+    /* ── SHARE INSIGHTS CARD ──────────────────────────────────────────────── */
+    #insights-card-wrapper {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .insights-card {
+      width: 420px;
+      min-height: 560px;
+      background: #0a0a0a;
+      border: 2px solid #00c896;
+      border-radius: 16px;
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      font-family: 'DM Sans', sans-serif;
+      color: #f0f0f0;
+      background-image:
+        linear-gradient(#0e0e0e 1px, transparent 1px),
+        linear-gradient(90deg, #0e0e0e 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-color: #0a0a0a;
+    }
+
+    .insights-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #222;
+    }
+
+    .insights-brand {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7em;
+      color: #00c896;
+      letter-spacing: 0.08em;
+    }
+
+    .insights-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8em;
+      color: #666;
+    }
+
+    .insights-title {
+      font-size: 1.8em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .insights-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .insights-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65em;
+      color: #555;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .insights-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 0.9em;
+    }
+
+    .insights-rank {
+      font-family: 'DM Mono', monospace;
+      color: #00c896;
+      font-weight: 600;
+    }
+
+    .insights-bar {
+      height: 4px;
+      background: #00c896;
+      border-radius: 2px;
+      margin-top: 4px;
+    }
+
+    .insights-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 3px solid #1a1a1a;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65em;
+      color: #333;
+      text-align: right;
+    }
+
     .modal-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -423,7 +548,10 @@
         <span class="header-brand">🐍 DS Ethos Analytics</span>
         <span class="badge" id="count-badge">0 registros</span>
       </div>
-      <button class="btn" id="refreshBtn">↻ Atualizar</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" id="shareInsightsBtn">📊 Compartilhar Insights</button>
+        <button class="btn" id="refreshBtn">↻ Atualizar</button>
+      </div>
     </header>
 
     <div class="dashboard-layout">
@@ -496,15 +624,71 @@
         <div class="grid-charts">
           <div class="card">
             <h3>Distribuição de personas</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <button class="tab-btn active" data-persona-view="primary">Principal</button>
+              <button class="tab-btn" data-persona-view="all">Top 3</button>
+            </div>
             <div class="chart-container">
               <canvas id="personaChart"></canvas>
             </div>
           </div>
           <div class="card">
-            <h3>Experiência vs. foco em sistemas</h3>
-            <div class="chart-container">
-              <canvas id="matrixChart"></canvas>
+            <h3>Visualização 2D</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 140px;">
+                <label class="filter-label" style="font-size: 0.7em; margin-bottom: 4px;">Eixo X</label>
+                <select id="scatterAxisX" style="width: 100%; padding: 6px; background: var(--bg-raised); border: 1px solid var(--bg-border); color: var(--text-primary); border-radius: 6px; font-size: 0.85em;">
+                  <option value="Abstrato">Abstrato ↔ Concreto</option>
+                  <option value="Visual">Visual ↔ Estrutural</option>
+                  <option value="Humano">Humano ↔ Sistema</option>
+                  <option value="Preventivo">Preventivo ↔ Reativo</option>
+                  <option value="Exploratório">Exploratório ↔ Controlado</option>
+                  <option value="Visão Global">Visão Global ↔ Detalhista</option>
+                  <option value="Experimental">Experimental ↔ Estruturado</option>
+                </select>
+              </div>
+              <div style="flex: 1; min-width: 140px;">
+                <label class="filter-label" style="font-size: 0.7em; margin-bottom: 4px;">Eixo Y</label>
+                <select id="scatterAxisY" style="width: 100%; padding: 6px; background: var(--bg-raised); border: 1px solid var(--bg-border); color: var(--text-primary); border-radius: 6px; font-size: 0.85em;">
+                  <option value="Abstrato">Abstrato ↔ Concreto</option>
+                  <option value="Visual">Visual ↔ Estrutural</option>
+                  <option value="Humano" selected>Humano ↔ Sistema</option>
+                  <option value="Preventivo">Preventivo ↔ Reativo</option>
+                  <option value="Exploratório">Exploratório ↔ Controlado</option>
+                  <option value="Visão Global">Visão Global ↔ Detalhista</option>
+                  <option value="Experimental">Experimental ↔ Estruturado</option>
+                </select>
+              </div>
             </div>
+            <div class="chart-container">
+              <canvas id="scatterChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demographic Analysis -->
+        <div class="card" style="margin-top: 16px;">
+          <h3>📊 Perfil Médio Por Grupo</h3>
+          <div style="display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 140px;">
+              <label class="filter-label" style="font-size: 0.75em;">Agrupar por</label>
+              <select id="demoGroupBy" style="width: 100%; padding: 8px; background: var(--bg-raised); border: 1px solid var(--bg-border); color: var(--text-primary); border-radius: 6px;">
+                <option value="age">Idade</option>
+                <option value="year">Ano Escolar</option>
+                <option value="gender">Gênero</option>
+                <option value="experience">Experiência</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+              <label class="filter-label" style="font-size: 0.75em;">Selecionar</label>
+              <select id="demoValue" style="width: 100%; padding: 8px; background: var(--bg-raised); border: 1px solid var(--bg-border); color: var(--text-primary); border-radius: 6px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <button class="btn" style="align-self: flex-end; padding: 8px 16px;" onclick="showDemoProfile()">Ver Perfil</button>
+          </div>
+          <div id="demoResults" style="display: none; padding: 16px; background: var(--bg-raised); border-radius: 8px; margin-top: 12px;">
+            <!-- Populated dynamically -->
           </div>
         </div>
 
@@ -568,12 +752,23 @@
           <div class="chart-container" style="height: 280px; margin-top: 10px;">
             <canvas id="modalRadar"></canvas>
           </div>
+          <button class="btn" id="reconstructResultBtn" style="width: 100%; margin-top: 16px;">
+            🔄 Reconstruir Resultado
+          </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ── INSIGHTS CARD (hidden, captured by html2canvas) ──────────────────── -->
+  <div id="insights-card-wrapper">
+    <div class="insights-card" id="insights-card">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
 <script>
+    
 // =============================================================================
 // ESTADO GLOBAL
 // =============================================================================
@@ -734,8 +929,531 @@ function updateDashboard() {
   renderKPIs();
   renderCharts();
   renderTable();
+  renderScatterChart();          
+  populateDemoValueDropdown();    
 }
 
+// =============================================================================
+// FEATURE 1: 2D SCATTER PLOT (filterable axes)
+// =============================================================================
+
+let scatterChart = null;
+
+function renderScatterChart() {
+  const xAxis = document.getElementById('scatterAxisX').value;
+  const yAxis = document.getElementById('scatterAxisY').value;
+
+  const datasets = filteredData.map((d, i) => ({
+    label: d.name,
+    data: [{
+      x: d.results.axes[xAxis] || 50,
+      y: d.results.axes[yAxis] || 50
+    }],
+    backgroundColor: getPersonaColor(d.results.personas[0].key),
+    pointRadius: 6,
+    pointHoverRadius: 8
+  }));
+
+  const ctx = document.getElementById('scatterChart');
+  if (scatterChart) scatterChart.destroy();
+
+  scatterChart = new Chart(ctx, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const student = filteredData[ctx.datasetIndex];
+              return [
+                student.name,
+                `${xAxis}: ${Math.round(ctx.parsed.x)}`,
+                `${yAxis}: ${Math.round(ctx.parsed.y)}`,
+                `Persona: ${student.results.personas[0].name}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: xAxis + ' →', color: '#888' },
+          min: 0,
+          max: 100,
+          grid: { color: '#222' }
+        },
+        y: {
+          title: { display: true, text: yAxis + ' →', color: '#888' },
+          min: 0,
+          max: 100,
+          grid: { color: '#222' }
+        }
+      }
+    }
+  });
+}
+
+function getPersonaColor(personaKey) {
+  const colors = {
+    'Builder': '#00c896',
+    'Architect': '#007a5c',
+    'Guardian': '#ff6b6b',
+    'Detective': '#4ecdc4',
+    'Tinkerer': '#ffe66d',
+    'Optimizer': '#a8e6cf',
+    'Quality Enforcer': '#ff8b94'
+  };
+  return colors[personaKey] || '#888';
+}
+
+// Add event listeners for axis selectors
+document.getElementById('scatterAxisX').addEventListener('change', renderScatterChart);
+document.getElementById('scatterAxisY').addEventListener('change', renderScatterChart);
+
+
+// =============================================================================
+// FEATURE 2: SECONDARY PERSONA DISTRIBUTION (top 3)
+// =============================================================================
+
+let currentPersonaView = 'primary';
+
+function renderPersonaChart() {
+  const counts = {};
+  
+  if (currentPersonaView === 'primary') {
+    // Count only #1 personas
+    filteredData.forEach(d => {
+      const p = d.results.personas[0].name;
+      counts[p] = (counts[p] || 0) + 1;
+    });
+  } else {
+    // Count all top 3 personas with rank weighting
+    filteredData.forEach(d => {
+      d.results.personas.slice(0, 3).forEach((p, rank) => {
+        const key = p.name;
+        if (!counts[key]) counts[key] = { rank1: 0, rank2: 0, rank3: 0 };
+        if (rank === 0) counts[key].rank1++;
+        if (rank === 1) counts[key].rank2++;
+        if (rank === 2) counts[key].rank3++;
+      });
+    });
+  }
+
+  const ctx = document.getElementById('personaChart');
+  if (charts.persona) charts.persona.destroy();
+
+  if (currentPersonaView === 'primary') {
+    charts.persona = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(counts),
+        datasets: [{
+          label: 'Persona principal',
+          data: Object.values(counts),
+          backgroundColor: COLOR_PRIMARY
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  } else {
+    // Stacked bar for top 3
+    const labels = Object.keys(counts);
+    charts.persona = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '#1',
+            data: labels.map(k => counts[k].rank1),
+            backgroundColor: '#00c896'
+          },
+          {
+            label: '#2',
+            data: labels.map(k => counts[k].rank2),
+            backgroundColor: '#00a37a'
+          },
+          {
+            label: '#3',
+            data: labels.map(k => counts[k].rank3),
+            backgroundColor: '#007a5c'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+}
+
+// Tab button listeners
+document.querySelectorAll('[data-persona-view]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('[data-persona-view]').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentPersonaView = e.target.dataset.personaView;
+    renderPersonaChart();
+  });
+});
+
+
+// =============================================================================
+// FEATURE 3: DEMOGRAPHIC FILTERS (average profile by group)
+// =============================================================================
+
+function populateDemoValueDropdown() {
+  const groupBy = document.getElementById('demoGroupBy').value;
+  const valueSelect = document.getElementById('demoValue');
+  
+  const values = new Set();
+  filteredData.forEach(d => {
+    let val;
+    if (groupBy === 'age') val = d.demographics.age;
+    else if (groupBy === 'year') val = d.demographics.schoolYear + 'º ano';
+    else if (groupBy === 'gender') val = d.demographics.gender || 'Não informado';
+    else if (groupBy === 'experience') val = d.demographics.priorExperience ? 'Com experiência' : 'Sem experiência';
+    
+    if (val) values.add(val);
+  });
+
+  valueSelect.innerHTML = Array.from(values).sort().map(v => 
+    `<option value="${v}">${v}</option>`
+  ).join('');
+}
+
+document.getElementById('demoGroupBy').addEventListener('change', populateDemoValueDropdown);
+
+function showDemoProfile() {
+  const groupBy = document.getElementById('demoGroupBy').value;
+  const value = document.getElementById('demoValue').value;
+
+  const subset = filteredData.filter(d => {
+    if (groupBy === 'age') return d.demographics.age == value;
+    if (groupBy === 'year') return (d.demographics.schoolYear + 'º ano') === value;
+    if (groupBy === 'gender') return (d.demographics.gender || 'Não informado') === value;
+    if (groupBy === 'experience') {
+      const hasExp = d.demographics.priorExperience;
+      return value === 'Com experiência' ? hasExp : !hasExp;
+    }
+    return false;
+  });
+
+  if (subset.length === 0) {
+    document.getElementById('demoResults').style.display = 'none';
+    return;
+  }
+
+  // Calculate averages
+  const personaCounts = {};
+  const domainScores = {};
+  
+  subset.forEach(d => {
+    const topPersona = d.results.personas[0].name;
+    personaCounts[topPersona] = (personaCounts[topPersona] || 0) + 1;
+
+    d.results.domains.forEach(dom => {
+      if (!domainScores[dom.name]) domainScores[dom.name] = [];
+      domainScores[dom.name].push(dom.score);
+    });
+  });
+
+  const avgDomains = Object.entries(domainScores)
+    .map(([name, scores]) => ({
+      name,
+      avg: Math.round(scores.reduce((a,b) => a+b, 0) / scores.length)
+    }))
+    .sort((a, b) => b.avg - a.avg);
+
+  const topPersona = Object.entries(personaCounts)
+    .sort((a, b) => b[1] - a[1])[0];
+
+  // Display results
+  const resultsDiv = document.getElementById('demoResults');
+  resultsDiv.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <div>
+        <p style="font-family: var(--font-mono); font-size: 0.75em; color: var(--text-muted); margin-bottom: 8px;">
+          PERFIL DE ${subset.length} ${subset.length === 1 ? 'ALUNO' : 'ALUNOS'}
+        </p>
+        <div style="font-size: 1.8em; color: var(--green-bright); font-weight: 700; margin-bottom: 4px;">
+          ${topPersona[0]}
+        </div>
+        <div style="color: var(--text-secondary); font-size: 0.9em;">
+          Persona dominante (${Math.round(topPersona[1]/subset.length*100)}%)
+        </div>
+      </div>
+      <div>
+        <p style="font-family: var(--font-mono); font-size: 0.75em; color: var(--text-muted); margin-bottom: 8px;">
+          TOP 3 ÁREAS
+        </p>
+        ${avgDomains.slice(0, 3).map((d, i) => `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 0.9em;">${i+1}. ${d.name}</span>
+            <span style="font-family: var(--font-mono); color: var(--green-bright);">${d.avg}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  resultsDiv.style.display = 'block';
+}
+
+
+// =============================================================================
+// FEATURE 4: RECONSTRUCT RESULT (in modal)
+// =============================================================================
+
+let currentModalStudent = null;
+
+// Store reference when opening modal
+function showDetailModal(row) {
+  currentModalStudent = row;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+document.getElementById('reconstructResultBtn').addEventListener('click', async () => {
+  if (!currentModalStudent) return;
+
+  const btn = document.getElementById('reconstructResultBtn');
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    // Generate result card using the same logic as results.js
+    const card = generateStudentCard(currentModalStudent);
+    
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.left = '-9999px';
+    tempContainer.innerHTML = card;
+    document.body.appendChild(tempContainer);
+
+    // Capture with html2canvas
+    const canvas = await html2canvas(tempContainer.firstChild, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: "#0a0a0a"
+    });
+
+    // Download
+    const link = document.createElement('a');
+    link.download = `${currentModalStudent.name.replace(/\s+/g, '_')}_ethos_card.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(tempContainer);
+
+    btn.textContent = '✓ Card Gerado!';
+    setTimeout(() => {
+      btn.textContent = '🔄 Reconstruir Resultado';
+      btn.disabled = false;
+    }, 2000);
+
+  } catch (err) {
+    console.error(err);
+    btn.textContent = '✗ Erro';
+    setTimeout(() => {
+      btn.textContent = '🔄 Reconstruir Resultado';
+      btn.disabled = false;
+    }, 2000);
+  }
+});
+
+function generateStudentCard(student) {
+  const topPersonas = student.results.personas.slice(0, 3);
+  const allDomains = student.results.domains;
+
+  const cardDomainBars = allDomains.map((d, i) => `
+    <div class="card-domain-row ${i < 3 ? 'card-top-domain' : ''}">
+      <span class="card-domain-name">${d.name}</span>
+      <div class="card-domain-bar-track">
+        <div class="card-domain-bar-fill" style="width: ${d.score}%"></div>
+      </div>
+      <span class="card-domain-score">${d.score}%</span>
+    </div>
+  `).join('');
+
+  const cardPersonas = topPersonas.map((p, i) => `
+    <div class="card-persona-row">
+      <span class="card-persona-rank">#${i + 1}</span>
+      <span class="card-persona-name">${p.name}</span>
+      <span class="card-persona-score">${p.score}%</span>
+    </div>
+  `).join('');
+
+  // Use the same card styling from results.html
+  return `
+    <div class="share-card" style="width: 420px; min-height: 680px; background: #0a0a0a; border: 1px solid #00c864; border-radius: 16px; padding: 36px 32px; display: flex; flex-direction: column; gap: 0; font-family: 'DM Sans', sans-serif; color: #f0f0f0; background-image: linear-gradient(#0e0e0e 1px, transparent 1px), linear-gradient(90deg, #0e0e0e 1px, transparent 1px); background-size: 24px 24px; background-color: #0a0a0a;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+        <span class="card-brand" style="font-family: 'DM Mono', monospace; font-size: 0.7em; color: #00c85a; letter-spacing: 0.08em; text-transform: uppercase;">🐍 DS Ethos Quiz</span>
+      </div>
+
+      <div class="card-name-section" style="margin-bottom: 28px; padding-bottom: 24px; border-bottom: 4px solid #222;">
+        <h2 class="card-student-name" style="font-size: 2em; font-weight: 700; letter-spacing: -0.02em; color: #f0f0f0; line-height: 1.1;">${student.name}</h2>
+      </div>
+
+      <div class="card-personas-section" style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 4px solid #222;">
+        <p class="card-section-label" style="font-family: 'DM Mono', monospace; font-size: 0.65em; color: #555; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;">MINDSET</p>
+        ${cardPersonas}
+        <p class="card-tagline" style="font-style: italic; font-size: 0.8em; color: #00a364; margin-top: 12px; line-height: 1.4;">"${topPersonas[0].tagline}"</p>
+      </div>
+
+      <div class="card-domains-section" style="flex: 1; margin-bottom: 24px;">
+        <p class="card-section-label" style="font-family: 'DM Mono', monospace; font-size: 0.65em; color: #555; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;">ÁREAS</p>
+        ${cardDomainBars}
+      </div>
+
+      <div class="card-footer" style="font-family: 'DM Mono', monospace; font-size: 0.65em; color: #333; text-align: right; margin-top: auto; padding-top: 16px; border-top: 4px solid #1a1a1a;">
+        <span>2026 · DS Ethos Quiz</span>
+      </div>
+    </div>
+  `;
+}
+
+
+// =============================================================================
+// FEATURE 5: SHARE INSIGHTS CARD (aggregate summary export)
+// =============================================================================
+
+document.getElementById('shareInsightsBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('shareInsightsBtn');
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    // Calculate aggregate stats
+    const personaCounts = {};
+    const domainScores = {};
+    
+    filteredData.forEach(d => {
+      const topPersona = d.results.personas[0].name;
+      personaCounts[topPersona] = (personaCounts[topPersona] || 0) + 1;
+
+      d.results.domains.forEach(dom => {
+        if (!domainScores[dom.name]) domainScores[dom.name] = [];
+        domainScores[dom.name].push(dom.score);
+      });
+    });
+
+    const avgDomains = Object.entries(domainScores)
+      .map(([name, scores]) => ({
+        name,
+        avg: Math.round(scores.reduce((a,b) => a+b, 0) / scores.length)
+      }))
+      .sort((a, b) => b.avg - a.avg);
+
+    const topPersona = Object.entries(personaCounts)
+      .sort((a, b) => b[1] - a[1])[0];
+
+    const expCount = filteredData.filter(d => d.demographics.priorExperience).length;
+    const expPct = Math.round(expCount / filteredData.length * 100);
+
+    // Generate card
+    const card = document.getElementById('insights-card');
+    card.innerHTML = `
+      <div class="insights-header">
+        <div>
+          <div class="insights-brand">🐍 DS ETHOS</div>
+          <div class="insights-title">Insights ${new Date().getFullYear()}</div>
+        </div>
+        <div class="insights-count">${filteredData.length} alunos</div>
+      </div>
+
+      <div class="insights-section">
+        <div class="insights-label">Top 3 Áreas</div>
+        ${avgDomains.slice(0, 3).map((d, i) => `
+          <div class="insights-item">
+            <div>
+              <div class="insights-rank">${i + 1}. ${d.name}</div>
+              <div class="insights-bar" style="width: ${d.avg}%; max-width: 200px;"></div>
+            </div>
+            <span style="font-family: 'DM Mono', monospace; color: #00c896; font-weight: 600;">${d.avg}%</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="insights-section">
+        <div class="insights-label">Persona Dominante</div>
+        <div class="insights-item">
+          <div style="font-size: 1.4em; font-weight: 600;">${topPersona[0]}</div>
+          <span style="font-family: 'DM Mono', monospace; color: #00c896;">${Math.round(topPersona[1]/filteredData.length*100)}%</span>
+        </div>
+      </div>
+
+      <div class="insights-section">
+        <div class="insights-label">Com Experiência</div>
+        <div class="insights-item">
+          <div style="font-size: 1.4em; font-weight: 600;">${expPct}%</div>
+          <span style="font-size: 0.85em; color: #666;">${expCount} de ${filteredData.length}</span>
+        </div>
+      </div>
+
+      <div class="insights-footer">
+        the-ethos-quiz.vercel.app · Sistema Desenvolvimento
+      </div>
+    `;
+
+    // Capture card
+    const canvas = await html2canvas(card, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: "#0a0a0a"
+    });
+
+    const link = document.createElement('a');
+    link.download = `ds_ethos_insights_${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    btn.textContent = '✓ Card Gerado!';
+    setTimeout(() => {
+      btn.textContent = '📊 Compartilhar Insights';
+      btn.disabled = false;
+    }, 2000);
+
+  } catch (err) {
+    console.error(err);
+    btn.textContent = '✗ Erro';
+    setTimeout(() => {
+      btn.textContent = '📊 Compartilhar Insights';
+      btn.disabled = false;
+    }, 2000);
+  }
+});
+
+
+// =============================================================================
+// INITIALIZATION UPDATES
+// Add these to the existing updateDashboard() function:
+// =============================================================================
+
+// In updateDashboard(), add:
+// renderScatterChart();
+// populateDemoValueDropdown();
+
+// After filteredData changes, call renderScatterChart() to update the scatter plot
 // ── KPIs ─────────────────────────────────────────────────────────────────────
 function renderKPIs() {
   document.getElementById('kpi-total').textContent = filteredData.length;
